@@ -56,7 +56,7 @@ public class SearchWord extends Application {
 		
 		//按钮
 		btOk.setOnAction(e -> {//lambda表达式，省去类和对象的定义
-			statefield.setText("\"" + "\"" + tf.getText() + " has been added to notebook");
+			statefield.setText("\"" + tf.getText() + "\"" + " has been added to notebook");
 			//add to notebook
 		});
 		
