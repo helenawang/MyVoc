@@ -1,0 +1,6 @@
+{
+  "name": "MyVoc",
+  "tagline": "a iciba-like dictionary application, integrated Collins dictionary API",
+  "body": "### Welcome to MyVoc.\r\nThis is a iciba-like dictionary application, integrated Collins dictionary API. \r\n\r\n![image](https://github.com/helenawang/MyVoc/blob/master/png/make_a_search.JPG)\r\n\r\n### Functions\r\nfor each word you looked up, this program can:\r\n* show the search result from `COBUILD Advanced British English Dictionary`\r\n* add the word to notebook if you click the `add to notebook` button\r\n* extract the definition and examples to a `word.txt` file\r\nNext I will try to add some custom funtions in order to track behaviours and help you with your English learning~\r\n\r\n### Appreciation\r\nThanks `Collins Learning` for providing API key and all the helpful documents.\r\n\r\n### Support or Contact\r\nHaving trouble with MyVoc? Check out our [documentation](https://github.com/helenawang/MyVoc) or [contact me](https://github.com/helenawang) and I’ll help you sort it out.\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
