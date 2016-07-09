@@ -5,6 +5,16 @@
  */
 package src;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+
 import org.json.JSONException;
 
 import fr.idm.sk.publish.api.client.light.SkPublishAPIException;
@@ -20,11 +30,15 @@ import javafx.stage.Stage;
  * @author helena
  *
  */
-public class SearchWord extends Application {
+public class SearchWord extends Application{
 	static DictionaryConnect dc;
 	String result;
-	public SearchWord() throws JSONException, SkPublishAPIException{
+	static File notebook = new File("notebook.txt");
+	static FileWriter toNotebook;
+	
+	public SearchWord() throws JSONException, SkPublishAPIException, IOException{
 		dc = new DictionaryConnect(9);
+		toNotebook = new FileWriter(notebook, true);//追加写入
 	}
 	
 	/* (non-Javadoc)
@@ -46,8 +60,14 @@ public class SearchWord extends Application {
 			String word = tf.getText();
 			System.out.println("you entered " + word);
 			result = dc.getExplaination(word);
-			dc.save(result);
+			try {
+				dc.save(word, result);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			wb.refresh();
+			
 			pane.setCenter(wb);
 		});		
 		
@@ -55,9 +75,14 @@ public class SearchWord extends Application {
 		statefield.setEditable(false);
 		
 		//按钮
-		btOk.setOnAction(e -> {//lambda表达式，省去类和对象的定义
+		btOk.setOnAction(e -> {
 			statefield.setText("\"" + tf.getText() + "\"" + " has been added to notebook");
-			//add to notebook
+			try {
+				toNotebook.write(tf.getText() + "\n");//可以追加了
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		
 		pane.setTop(tf);
@@ -73,11 +98,13 @@ public class SearchWord extends Application {
 	/**
 	 * @param args
 	 * TODO
+	 * @throws IOException 
 	 * 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		Application.launch(args);
+		toNotebook.close();
 	}
 
 }

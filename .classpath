@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="json-20080701.jar"/>
 	<classpathentry kind="lib" path="SkPublishAPI.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="F:/mylib_H/MyVoc/jsoup-1.9.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

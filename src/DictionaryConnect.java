@@ -5,8 +5,12 @@
  */
 package src;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.http.client.methods.HttpGet;
@@ -15,6 +19,10 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import fr.idm.sk.publish.api.client.light.SkPublishAPI;
 import fr.idm.sk.publish.api.client.light.SkPublishAPIException;
@@ -30,7 +38,7 @@ public class DictionaryConnect {
 		DefaultHttpClient httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager());
         
 		String baseUrl = "https://api.collinsdictionary.com";
-		String key = "...your key here...";
+		String key = "your key here";
 		
         api = new SkPublishAPI(baseUrl + "/api/v1", key, httpClient);
         api.setRequestHandler(new SkPublishAPI.RequestHandler() {
@@ -60,13 +68,34 @@ public class DictionaryConnect {
         //System.out.println(result);
 		return result;
 	}
-    String save(String content){
+    String save(String word, String content) throws IOException{
             File outfile = new File("file.html");
-            PrintWriter output;
+            DataOutputStream output = new DataOutputStream(
+            		new BufferedOutputStream(new FileOutputStream(outfile)));
+            //PrintWriter output;
 			try {
-				output = new PrintWriter(outfile);
-				output.print("<meta charset=\"utf-8\">"+content);
+				//output = new PrintWriter(outfile);
+				output.writeUTF("<meta charset=\"utf-8\">"+content);
+				
 	            output.close();
+	            
+	            //parse explaination and examples
+	            File exeg = new File(word + ".txt");
+	            PrintWriter exegout = new PrintWriter(exeg);
+	            
+	            Document doc = Jsoup.parse(content);
+	            Elements explaination = doc.getElementsByClass("def");
+	            for(Element def: explaination){
+	            	//System.out.println(def.text());
+	            	exegout.write(def.text() + "\n");
+	            }
+	            
+	            Elements examples = doc.getElementsByClass("cit");
+	            for(Element eg: examples){
+	            	//System.out.println(eg.text());
+	            	exegout.write(eg.text() + "\n");
+	            }
+	            exegout.close();
 	            return "'s explaination has been saved";
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
