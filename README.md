@@ -6,4 +6,4 @@
 * add the word to notebook if you click the `add to notebook` button
 * extract the definition and examples to a `word.txt` file
 
-###Next I will try to add some custom funtions in order to track behaviours and analyze your English by behaviours~
+###Next I will try to add some custom funtions in order to track behaviours and help you with your English learning~
