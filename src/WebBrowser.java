@@ -26,18 +26,12 @@ public class WebBrowser extends Region{
 	
 	public WebBrowser(String htmlFile){
 		this.htmlFile = htmlFile;
-		//webEngine.load(htmlFile);
 		getChildren().add(browser);
 	}
 	public void refresh(){//重新载入html文件
 		webEngine.load(htmlFile);
-		//getChildren().add(browser);
 	}
-//	private Node createSpacer(){
-//		Region spacer = new Region();
-//		HBox.setHgrow(spacer, Priority.ALWAYS);
-//		return spacer;
-//	}
+
 	@Override protected void layoutChildren() {
         double w = getWidth();
         double h = getHeight();
