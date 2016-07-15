@@ -59,6 +59,7 @@ public class DictionaryConnect {
 	}
 	
 	String getExplaination(String word) throws JSONException, SkPublishAPIException{//make a search
+		
 		JSONObject bestMatch;
 		String result = "";
 			bestMatch = new JSONObject(api.searchFirst(dictCode, word, "html"));
@@ -101,6 +102,6 @@ public class DictionaryConnect {
 			output.write("<meta charset=\"utf-8\">"+content);
 	        output.close();
 	           
-	        return "'s explaination has been saved temprorily";
+	    return word + "'s explaination has been fetched from Collins Dictionary";
     }
 }

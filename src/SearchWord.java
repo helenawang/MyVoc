@@ -14,7 +14,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -42,6 +44,8 @@ import javafx.stage.Stage;
  *
  */
 public class SearchWord extends Application{
+	
+	//GUI
 	static final int width = 800, height = 500;
 	static DictionaryConnect dc;
 	String result;
@@ -58,6 +62,9 @@ public class SearchWord extends Application{
 	VBox vBox = new VBox(10);//左侧栏
 	ImageView imageView = new ImageView(new Image("file:///F:/mylib_H/MyVoc/image/commencement.JPG"));
 
+	//DB
+	static DBConnection dbc;
+	
 	public SearchWord() throws JSONException, SkPublishAPIException, IOException{
 		dc = new DictionaryConnect(9);
 		if(dc.connected) statefield.setText("successfully connected to Collins Learning Dictionary");
@@ -69,25 +76,48 @@ public class SearchWord extends Application{
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		dbc = new DBConnection();
 		// TODO Auto-generated method stub
 		tf.setAlignment(Pos.BOTTOM_RIGHT);
 		tf.appendText("enter a word");
 		tf.setOnAction(e -> {
 			String word = tf.getText();
-			try {
-				result = dc.getExplaination(word);
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
 			System.out.println("you entered " + word);
+			
+			//先在本地数据库里查，没有的话再去在线词典查
+			
+			//本地数据库
+			ArrayList<String> exp = new ArrayList<String>();
 			try {
-				dc.saveTemp(word, result);
-			} catch (Exception e1) {
+				exp = dbc.getExplaination(word);
+			} catch (Exception e3) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				e3.printStackTrace();
+			}
+			if(exp != null && exp.size() > 0){
+				try {
+					result = emitHTML(word, exp);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			else{//求助在线词典
+				try {
+					result = dc.getExplaination(word);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+				try {
+					result = dc.saveTemp(word, result);//又把result变成状态信息了，不太好
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 			wb.refresh();
 			pane.setCenter(wb);
+			statefield.setText(result);
 		});		
 		
 		statefield.setAlignment(Pos.BOTTOM_LEFT);
@@ -140,15 +170,37 @@ public class SearchWord extends Application{
 		primaryStage.show();
 	}
 	/**
+	 * @param word
+	 * @param exp
+	 * @return
+	 * TODO
+	 * @throws FileNotFoundException 
+	 * 
+	 */
+	private String emitHTML(String word, ArrayList<String> exp) throws FileNotFoundException {
+		String tmp = "";
+		for(String e: exp){
+			tmp = tmp.concat("*" + e);
+			tmp = tmp.concat("<br/>");
+		}
+		File outfile = new File("file.html");//写入html文件
+        PrintWriter output = new PrintWriter(outfile);
+		output.write("<meta charset=\"utf-8\">"+ "<h3>" + word + "</h3>" + "<br/>" + tmp);
+        output.close();
+        return word + "'s explaination has been found in your database";
+	}
+
+	/**
 	 * @param args
 	 * TODO
 	 * @throws IOException 
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 * 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
 		// TODO Auto-generated method stub
 		Application.launch(args);
 		toNotebook.close();
 	}
-
 }
