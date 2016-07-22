@@ -13,3 +13,4 @@
 
 ###And I will try to add some custom funtions in order to track behaviours and help you with your English learning~
 ###Thanks Collins Learning for providing API key and all the helpful documents.
+###I also got the API key of Merriam-Webster's dictionary, I will try to integrate it next time.
