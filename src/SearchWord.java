@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,17 +40,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+
 /**
  * @author helena
  *
  */
 public class SearchWord extends Application{
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
 	//GUI
 	static final int width = 800, height = 500;
 	static DictionaryConnect dc;
 	String result;
-	static File notebook = new File("notebook.txt");
+	static String today = DateFormat.getDateInstance().format(new Date());
+	static File notebook = new File("notebook"+today+".txt");//每天一个新本
 	static FileWriter toNotebook;
 	
 	BorderPane pane = new BorderPane();
@@ -57,10 +61,11 @@ public class SearchWord extends Application{
 	TextField tf = new TextField();//输入框
 	WebBrowser wb = new WebBrowser("file:///F:/mylib_H/MyVoc/file.html");//结果框（目前只能直接显示html格式）
 	TextField statefield = new TextField();//状态栏
-	Button btOk = new Button("add to notebook");
+	Button btNB = new Button("add to notebook");
+	Button btDB = new Button("add to database");
 	Button btWOD = new Button("word of the day");
 	VBox vBox = new VBox(10);//左侧栏
-	ImageView imageView = new ImageView(new Image("file:///F:/mylib_H/MyVoc/image/commencement.JPG"));
+	ImageView imageView = new ImageView(new Image("file:///F:/mylib_H/MyVoc/image/myvoc.JPG"));
 
 	//DB
 	static DBConnection dbc;
@@ -68,6 +73,8 @@ public class SearchWord extends Application{
 	public SearchWord() throws JSONException, SkPublishAPIException, IOException{
 		dc = new DictionaryConnect(9);
 		if(dc.connected) statefield.setText("successfully connected to Collins Learning Dictionary");
+		System.out.println(notebook.getName());
+		if(!notebook.exists()) notebook.createNewFile();//不存在则创建
 		toNotebook = new FileWriter(notebook, true);//追加写入
 	}
 	
@@ -83,13 +90,13 @@ public class SearchWord extends Application{
 		tf.setOnAction(e -> {
 			String word = tf.getText();
 			System.out.println("you entered " + word);
-			
+			String state = "";
 			//先在本地数据库里查，没有的话再去在线词典查
 			
 			//本地数据库
 			ArrayList<String> exp = new ArrayList<String>();
 			try {
-				exp = dbc.getExplaination(word);
+				exp = dbc.getExplaination(word);//从本地数据库获取释义集
 			} catch (Exception e3) {
 				// TODO Auto-generated catch block
 				e3.printStackTrace();
@@ -101,6 +108,7 @@ public class SearchWord extends Application{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				state = word +"'s explaination has been found in your database";
 			}
 			else{//求助在线词典
 				try {
@@ -109,7 +117,7 @@ public class SearchWord extends Application{
 					e2.printStackTrace();
 				}
 				try {
-					result = dc.saveTemp(word, result);//又把result变成状态信息了，不太好
+					state = dc.saveTemp(word, result);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -117,31 +125,30 @@ public class SearchWord extends Application{
 			}
 			wb.refresh();
 			pane.setCenter(wb);
-			statefield.setText(result);
+			statefield.setText(state);
 		});		
 		
+		//状态栏
 		statefield.setAlignment(Pos.BOTTOM_LEFT);
 		statefield.setEditable(false);
 		
-		//按钮
-		btOk.setOnAction(e -> {
+		//add to notebook(both txt and db)
+		btNB.setOnAction(e -> {
 			statefield.setText("\"" + tf.getText() + "\"" + " has been added to notebook");
 			try {
-				dc.saveExplaination(tf.getText(), result);//把单词释义和例句（目前是混合的）单独保存为一个html
+				Entry entry = dc.saveExplaination(tf.getText(), result);//把单词释义和例句（目前是混合的）单独保存为一个html
 				toNotebook.write(tf.getText() + "\n");//把单词本身追加到一个单词本
+				dbc.saveWord(entry);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
 		
+		//get word of the day(未实现)
 		btWOD.setOnAction(e -> {
-			//Date today = new Date();//有漏洞？
-			String day = "2016-07-09";
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			try {
-				Date today = dateFormat.parse(day);
-				result = dc.getWOD(today);
+				result = dc.getWOD();
 				System.out.println(today.toString());
 				Document doc = Jsoup.parse(result);
 				Elements word = doc.getElementsByClass("hwd");
@@ -155,9 +162,10 @@ public class SearchWord extends Application{
 		});
 		
 		vBox.setPadding(new Insets(15,15,15,15));
+		vBox.getChildren().add(imageView);
 		vBox.getChildren().add(btWOD);
-		vBox.getChildren().add(btOk);
-		//vBox.getChildren().add(imageView);
+		vBox.getChildren().add(btNB);
+		//vBox.getChildren().add(btDB);
 		
 		pane.setTop(tf);
 		pane.setLeft(vBox);
@@ -189,7 +197,17 @@ public class SearchWord extends Application{
         output.close();
         return word + "'s explaination has been found in your database";
 	}
-
+	class Word{//想和数据库的表一致，该用框架吗
+		String word;
+		int numE;
+		public Word(){
+			word = "";
+			numE = 0;
+		}
+		public void saveToDB(){
+			
+		}
+	}
 	/**
 	 * @param args
 	 * TODO

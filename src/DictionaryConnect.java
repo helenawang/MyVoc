@@ -67,7 +67,8 @@ public class DictionaryConnect {
         //System.out.println(result);
 		return result;
 	}
-	String getWOD(Date date) throws JSONException, SkPublishAPIException{
+	String getWOD() throws JSONException, SkPublishAPIException{
+		Date date = new Date();
 		String dateFormat = (new SimpleDateFormat("yyyy-MM-dd")).format(date);
 		System.out.println(dateFormat);
 		JSONObject wordOfDay;
@@ -76,25 +77,34 @@ public class DictionaryConnect {
 		result = wordOfDay.getString("entryContent");
 		return result;
 	}
-	String saveExplaination(String word, String content) throws FileNotFoundException{
+	Entry saveExplaination(String word, String content) throws FileNotFoundException{
 		//parse explaination and examples
-        File exeg = new File(word + ".txt");
+        File exeg = new File("words/" + word + ".txt");//放在子文件夹下
         PrintWriter exegout = new PrintWriter(exeg);
         
+        Entry entry = new Entry(word);//创建词条
+        
+        //解析html文件
         Document doc = Jsoup.parse(content);
+        
+        //释义
         Elements explaination = doc.getElementsByClass("def");
+        System.out.println("共 " + explaination.size() + " 条释义");
         for(Element def: explaination){
         	//System.out.println(def.text());
         	exegout.write(def.text() + "\n");
+        	entry.addExplaination(def.text());//添加到词条对象中
+        	System.out.println("def " + def.text());
         }
         
+        //例句
         Elements examples = doc.getElementsByClass("cit");
         for(Element eg: examples){
         	//System.out.println(eg.text());
         	exegout.write(eg.text() + "\n");
         }
         exegout.close();
-        return "'s explaination has been saved";
+        return entry;
 	}
     String saveTemp(String word, String content) throws IOException{
             File outfile = new File("file.html");
