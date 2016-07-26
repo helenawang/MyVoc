@@ -153,7 +153,11 @@ public class SearchWord extends Application{
 				Document doc = Jsoup.parse(result);
 				Elements word = doc.getElementsByClass("hwd");
 				for(Element el: word){
-					statefield.setText("today's word of day is " + el.toString());
+					String wordText = el.text();
+					statefield.setText("today's word of day is " + wordText);
+					dc.saveTemp(wordText, result);
+					wb.refresh();
+					pane.setCenter(wb);
 				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
