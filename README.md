@@ -9,6 +9,7 @@
 * but the defination and examples are mixed, I need to learn more about DOM to extract them properly and make them aligned.
 ![image](https://github.com/helenawang/MyVoc/blob/master/png/wod.JPG)
 ![image](https://github.com/helenawang/MyVoc/blob/master/png/linux.png)
+
 p.s the font under my ubuntu is so ugly now...
 ###for each word you looked up, this program can:
 * show the search result from `COBUILD Advanced British English Dictionary`
